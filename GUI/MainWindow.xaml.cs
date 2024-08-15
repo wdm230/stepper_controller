@@ -443,6 +443,7 @@ namespace SyringePumpController
         }
     }
 
+
     /// <summary>
     /// Class to store settings for the application.
     /// </summary>

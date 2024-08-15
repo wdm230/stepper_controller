@@ -1,0 +1,27 @@
+﻿"SyringeDiameter"= 20
+"SyringeLength"= 100
+"PlungerDiameter"= 5
+"PlungerLength"= 110
+"VSlotWidth"= 30
+"VSlotDepth"= 20
+"FingerFlangeDiameter"= 30
+"VSlotBackPlateThickness"= 5
+"GuideRodDiameter"= 8.5
+"LeadScrewDiameter"= 8.5
+"GuideRodSpacing" = 16.25 + 4
+"LeadScrewSpacing" = 10.25 + 4
+"ThreadedInsertDiameter"= 7.1
+"ThreadedInsertDepth"= 10
+"MountingHoleDiameter"= 3
+"MountingHoleSpacing"= 20
+"BlockHeight" = 50
+"BlockWidth"= "RodToScrew" * 2 + 30
+"BlockDepth"= 20
+"VSlotAngle"= 90
+"GuideRodSideWidth"= 10
+"ScrewHeight" = 35
+"ThreadedInsertSideWidth" = 50
+"ScrewMountDistance"= 25
+"RodtoRod"= 115
+"RodToScrew"= "RodtoRod" / 2
+

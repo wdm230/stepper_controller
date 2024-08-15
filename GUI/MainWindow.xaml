@@ -1,0 +1,93 @@
+﻿<Window x:Class="SyringePumpController.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:TAlex.WPF.Controls;assembly=TAlex.WPF.Controls"
+        Title="Syringe Pump Controller" ResizeMode="CanResize"
+        Closing="Window_Closing">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Accessible Labels and Inputs -->
+        <Label Content="Syringe Diameter (mm):" Grid.Row="0" Grid.Column="0" Margin="5" />
+        <TextBox x:Name="textBoxDiameter" Grid.Row="0" Grid.Column="1" Margin="5"
+                 AutomationProperties.Name="Syringe Diameter" />
+
+        <Label Content="Fluid Amount (mL):" Grid.Row="1" Grid.Column="0" Margin="5" />
+        <TextBox x:Name="textBoxFluidAmount" Grid.Row="1" Grid.Column="1" Margin="5"
+                 AutomationProperties.Name="Fluid Amount" />
+
+        <Label Content="Flow Rate (mL/hr):" Grid.Row="2" Grid.Column="0" Margin="5" />
+        <TextBox x:Name="textBoxFlowRate" Grid.Row="2" Grid.Column="1" Margin="5"
+                 AutomationProperties.Name="Flow Rate" />
+
+        <Label Content="Current Position (mm):" Grid.Row="3" Grid.Column="0" Margin="5" />
+        <Label x:Name="labelCurrentPosition" Grid.Row="3" Grid.Column="1" Margin="5"
+               AutomationProperties.Name="Current Position" />
+
+        <Label Content="Current Motor RPM:" Grid.Row="4" Grid.Column="0" Margin="5" />
+        <Label x:Name="labelCurrentRPM" Grid.Row="4" Grid.Column="1" Margin="5"
+               AutomationProperties.Name="Motor RPM" />
+
+        <Button x:Name="buttonSetFlowRate" Content="Set Flow Rate" Grid.Row="5" Grid.Column="0" Margin="5"
+                Click="buttonSetFlowRate_Click" IsEnabled="False"
+                AutomationProperties.Name="Set Flow Rate" />
+        <Button x:Name="buttonStartStop" Content="Start" Foreground="Green" Grid.Row="5" Grid.Column="1" Margin="5"
+                Click="buttonStartStop_Click" IsEnabled="False"
+                AutomationProperties.Name="Start or Stop" />
+
+        <Button x:Name="buttonJogSpeed" Content="Set Jog Speed" Grid.Row="5" Grid.Column="2" Margin="5"
+                Click="buttonJogSpeed_Click" IsEnabled="True"
+                AutomationProperties.Name="Set Jog Speed" />
+        <controls:NumericUpDown x:Name="numericUpDownJogSpeed" Grid.Row="5" Grid.Column="3" Margin="5"
+                                Minimum="1" Maximum="10" Value="8"
+                                AutomationProperties.Name="Jog Speed" />
+
+        <Button x:Name="buttonJogForward" Content="Jog Forward" Grid.Row="6" Grid.Column="1" Margin="5"
+                PreviewMouseLeftButtonDown="buttonJogForward_MouseDown" PreviewMouseLeftButtonUp="buttonJogForward_MouseUp"
+                IsEnabled="False" AutomationProperties.Name="Jog Forward" />
+        <Button x:Name="buttonJogBackward" Content="Jog Backward" Grid.Row="6" Grid.Column="0" Margin="5"
+                PreviewMouseLeftButtonDown="buttonJogBackward_MouseDown" PreviewMouseLeftButtonUp="buttonJogBackward_MouseUp"
+                IsEnabled="False" AutomationProperties.Name="Jog Backward" />
+        <Button x:Name="setPosition" Content="Set Position to 0" Grid.Row="7" Grid.Column="2" Margin="5"
+                Click="buttonSetPosition_Click" AutomationProperties.Name="Set Position to 0" />
+        <Button x:Name="buttonHome" Content="Home" Grid.Row="7" Grid.Column="0" Margin="5"
+                Click="buttonHome_Click" IsEnabled="False"
+                AutomationProperties.Name="Home" />
+        <Button x:Name="buttonEStop" Content="E-Stop" Grid.Row="7" Grid.Column="1" Margin="5"
+                Click="buttonEStop_Click" IsEnabled="False"
+                AutomationProperties.Name="Emergency Stop" />
+
+        <Label Content="COM Port:" Grid.Row="8" Grid.Column="0" Margin="5" />
+        <ComboBox x:Name="comboBoxComPorts" Grid.Row="8" Grid.Column="1" Margin="5"
+                  AutomationProperties.Name="COM Port" />
+        <Button x:Name="buttonInitialize" Content="Initialize" Grid.Row="8" Grid.Column="2" Margin="5"
+                Click="buttonInitialize_Click" AutomationProperties.Name="Initialize" />
+
+        <Label Content="Time to Empty:" Grid.Row="9" Grid.Column="0" Margin="5" />
+        <Label x:Name="labelTimeToEmpty" Grid.Row="9" Grid.Column="1" Margin="5"
+               AutomationProperties.Name="Time to Empty" />
+
+        <TextBox x:Name="textBlockStatus" Grid.Row="10" Grid.ColumnSpan="3" Margin="5"
+                 AcceptsReturn="True" VerticalScrollBarVisibility="Visible"
+                 IsReadOnly="True" TextWrapping="Wrap"
+                 AutomationProperties.Name="Status" />
+    </Grid>
+</Window>

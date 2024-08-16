@@ -1,0 +1,60 @@
+name: Build and Release EXE
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags that start with 'v', e.g., v1.0.0
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0' # Adjust to your project’s target version
+
+    - name: Restore dependencies
+      run: dotnet restore GUI/Stepper_controller.csproj
+
+    - name: Build solution
+      run: dotnet build GUI/Stepper_controller.csproj --configuration Release --no-restore
+
+    - name: Publish EXE
+      run: dotnet publish GUI/Stepper_controller.csproj -c Release -r win-x64 --self-contained --output ./publish
+
+    - name: Upload EXE as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: exe-output
+        path: ./publish/
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: exe-output
+
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: exe-output/**/*
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }}
+        name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        body: |
+          Automatically generated release.

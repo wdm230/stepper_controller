@@ -104,16 +104,16 @@ void handleCommand(String command) {
         stepper_driver.enable();
         stepper.setMaxSpeed(jogSpeed * stepsPerRevolution);  // Explicitly set max speed for jogging
         stepper.setAcceleration(.5 * stepsPerRevolution);    // Explicitly set acceleration for jogging
-        runMotorWithSCurve(jogSpeed * stepsPerRevolution, .5 * stepsPerRevolution, 3000); // Adjust timeInterval as needed
+        runMotorWithSCurve(jogSpeed * stepsPerRevolution, .5 * stepsPerRevolution, 500); // Adjust timeInterval as needed
     } else if (command == "JOG_BACKWARD") {
         Serial.println("Jogging backward.");
         stepper_driver.enable();
         stepper.setMaxSpeed(jogSpeed * stepsPerRevolution);  // Explicitly set max speed for jogging
         stepper.setAcceleration(.5 * stepsPerRevolution);    // Explicitly set acceleration for jogging
-        runMotorWithSCurve(-jogSpeed * stepsPerRevolution, .5 * stepsPerRevolution, 3000); // Adjust timeInterval as needed
+        runMotorWithSCurve(-jogSpeed * stepsPerRevolution, .5 * stepsPerRevolution, 500); // Adjust timeInterval as needed
     } else if (command == "STOP_JOG") {
         Serial.println("Stopping jog.");
-        runMotorWithSCurve(0, .5 * stepsPerRevolution, 1000);
+        runMotorWithSCurve(0, .5 * stepsPerRevolution, 500);
         stepper.setSpeed(0);
         stepper.stop();
         setNormalCurrent();

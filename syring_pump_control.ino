@@ -58,7 +58,7 @@ void setup() {
   stepper.setAcceleration(1 * stepsPerRevolution);  // Set the acceleration in steps per second^2
 
   // Print TMC2209 settings to verify
-  printTMC2209Settings();
+  //printTMC2209Settings();
 
   Serial.println("Setup complete.");
 }
@@ -221,6 +221,8 @@ void runMotorWithSCurve(float targetSpeed, float acceleration, float timeInterva
 
         // Exit if e-stop is activated
         if (estopActivated) {
+            stepper.setSpeed(0);
+            stepper_driver.disable();
             return;
         }
     }
@@ -254,6 +256,7 @@ void updateStatus() {
   Serial.println(currentRPM);
 }
 
+/*
 void printTMC2209Settings() {
   TMC2209::Settings settings = stepper_driver.getSettings();
 
@@ -297,6 +300,7 @@ void printTMC2209Settings() {
   Serial.println("*************************");
   Serial.println();
 
+  
   // Retrieve and print status
   Serial.println("*************************");
   Serial.println("getStatus()");
@@ -334,3 +338,4 @@ void printTMC2209Settings() {
   Serial.println("*************************");
   Serial.println();
 }
+*/

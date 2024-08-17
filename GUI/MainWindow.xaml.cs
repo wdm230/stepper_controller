@@ -10,7 +10,7 @@ namespace SyringePumpController
 {
     public partial class MainWindow : Window
     {
-        private SerialPort serialPort;
+        private SerialPort? serialPort;
         private bool isHomed = false;
         private bool isFlowRateSet = false;
         private bool isRunning = false;
@@ -27,13 +27,7 @@ namespace SyringePumpController
             InitializeComponent();
             LoadSettings();
             PopulateComPorts();
-            buttonHome.IsEnabled = false;
-            buttonSetFlowRate.IsEnabled = false;
-            buttonStartStop.IsEnabled = false;
-            buttonJogForward.IsEnabled = false;
-            buttonJogBackward.IsEnabled = false;
-            buttonEStop.IsEnabled = false;
-            buttonJogSpeed.IsEnabled = false;  
+            DisableControls();
 
             // Initialize the timer to update the time to empty every second
             timer = new DispatcherTimer();
@@ -45,6 +39,20 @@ namespace SyringePumpController
             comPortTimer.Interval = TimeSpan.FromSeconds(5);
             comPortTimer.Tick += ComPortTimer_Tick;
             comPortTimer.Start();
+        }
+
+        /// <summary>
+        /// Disables all controls except the initialize button.
+        /// </summary>
+        private void DisableControls()
+        {
+            buttonHome.IsEnabled = false;
+            buttonSetFlowRate.IsEnabled = false;
+            buttonStartStop.IsEnabled = false;
+            buttonJogForward.IsEnabled = false;
+            buttonJogBackward.IsEnabled = false;
+            buttonEStop.IsEnabled = false;
+            buttonJogSpeed.IsEnabled = false;
         }
 
         /// <summary>
@@ -74,9 +82,14 @@ namespace SyringePumpController
         /// <summary>
         /// Timer tick event for updating the COM ports.
         /// </summary>
-        private void ComPortTimer_Tick(object sender, EventArgs e)
+        private void ComPortTimer_Tick(object? sender, EventArgs e)
         {
             PopulateComPorts();
+            if (serialPort != null && !serialPort.IsOpen)
+            {
+                DisableControls();
+                MessageBox.Show("COM port disconnected. Please reinitialize.");
+            }
         }
 
         /// <summary>
@@ -91,7 +104,7 @@ namespace SyringePumpController
                     string json = File.ReadAllText(settingsFilePath);
                     if (!string.IsNullOrWhiteSpace(json))
                     {
-                        Settings settings = JsonSerializer.Deserialize<Settings>(json);
+                        Settings? settings = JsonSerializer.Deserialize<Settings>(json);
                         if (settings != null)
                         {
                             textBoxDiameter.Text = settings.Diameter.ToString();
@@ -121,7 +134,7 @@ namespace SyringePumpController
                     Diameter = string.IsNullOrWhiteSpace(textBoxDiameter.Text) ? 0 : Convert.ToDouble(textBoxDiameter.Text),
                     FluidAmount = string.IsNullOrWhiteSpace(textBoxFluidAmount.Text) ? 0 : Convert.ToDouble(textBoxFluidAmount.Text),
                     FlowRate = string.IsNullOrWhiteSpace(textBoxFlowRate.Text) ? 0 : Convert.ToDouble(textBoxFlowRate.Text),
-                    ComPort = comboBoxComPorts.SelectedItem?.ToString(),
+                    ComPort = comboBoxComPorts.SelectedItem?.ToString() ?? string.Empty,
                     JogSpeed = (double)numericUpDownJogSpeed.Value // Handle the nullable value
                 };
 
@@ -155,7 +168,6 @@ namespace SyringePumpController
                 serialPort = new SerialPort(comboBoxComPorts.SelectedItem.ToString(), 115200);
                 serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                 serialPort.Open();
-                SendCommand("ENABLE"); // Enable the motor driver
                 textBlockStatus.Text = $"Connected to {comboBoxComPorts.SelectedItem.ToString()}";
 
                 buttonHome.IsEnabled = true;
@@ -165,6 +177,7 @@ namespace SyringePumpController
             {
                 MessageBox.Show($"Failed to open COM port: {ex.Message}");
                 textBlockStatus.Text = "Failed to connect.";
+                DisableControls();
             }
         }
 
@@ -182,6 +195,8 @@ namespace SyringePumpController
             else
             {
                 textBlockStatus.Text = "Serial port not open.";
+                DisableControls();
+                MessageBox.Show("Connection lost. Please reinitialize.");
             }
         }
 
@@ -264,6 +279,32 @@ namespace SyringePumpController
             buttonStartStop.IsEnabled = true;
         }
 
+        private void stopPress()
+        {
+            SendCommand("STOP");
+            buttonStartStop.Content = "Start";
+            buttonStartStop.Foreground = new SolidColorBrush(Colors.Green);
+            timer.Stop();
+            isRunning = false;
+            buttonJogBackward.IsEnabled = true;
+            buttonJogForward.IsEnabled = true;
+            buttonHome.IsEnabled = true;
+            buttonSetFlowRate.IsEnabled = true;
+        }
+
+        private void startPress()
+        {
+            SendCommand("START");
+            buttonStartStop.Content = "Stop";
+            buttonStartStop.Foreground = new SolidColorBrush(Colors.Red);
+            timer.Start();
+            isRunning = true;
+            buttonJogBackward.IsEnabled = false;
+            buttonJogForward.IsEnabled = false;
+            buttonHome.IsEnabled = false;
+            buttonSetFlowRate.IsEnabled = false;
+        }
+
         /// <summary>
         /// Starts or stops the syringe pump based on the current state.
         /// </summary>
@@ -277,25 +318,11 @@ namespace SyringePumpController
 
             if (isRunning)
             {
-                SendCommand("STOP");
-                buttonStartStop.Content = "Start";
-                buttonStartStop.Foreground = new SolidColorBrush(Colors.Green);
-                timer.Stop();
-                isRunning = false;
-                buttonJogBackward.IsEnabled = true;
-                buttonJogForward.IsEnabled = true;
-                buttonHome.IsEnabled = true;
+                stopPress();
             }
             else
             {
-                SendCommand("START");
-                buttonStartStop.Content = "Stop";
-                buttonStartStop.Foreground = new SolidColorBrush(Colors.Red);
-                timer.Start();
-                isRunning = true;
-                buttonJogBackward.IsEnabled = false;
-                buttonJogForward.IsEnabled = false;
-                buttonHome.IsEnabled = false;
+                startPress();
             }
         }
 
@@ -311,10 +338,7 @@ namespace SyringePumpController
                 {
                     fluidAmount = 0;
                     timer.Stop();
-                    SendCommand("STOP");
-                    buttonStartStop.Content = "Start";
-                    buttonStartStop.Foreground = new SolidColorBrush(Colors.Green);
-                    isRunning = false;
+                    stopPress();
                 }
 
                 double timeToEmptyHours = fluidAmount / flowRate; // in hours
@@ -388,6 +412,7 @@ namespace SyringePumpController
         private void buttonEStop_Click(object sender, RoutedEventArgs e)
         {
             SendCommand("ESTOP");
+            stopPress();
         }
 
         /// <summary>
@@ -443,7 +468,6 @@ namespace SyringePumpController
         }
     }
 
-
     /// <summary>
     /// Class to store settings for the application.
     /// </summary>
@@ -452,7 +476,7 @@ namespace SyringePumpController
         public double Diameter { get; set; }
         public double FluidAmount { get; set; }
         public double FlowRate { get; set; }
-        public string ComPort { get; set; }
+        public string ComPort { get; set; } = string.Empty;
         public double JogSpeed { get; set; } // Store jog speed as a double
     }
 }
